@@ -35,7 +35,7 @@ public class ProcessUtils {
                 String compileOutputLine;
                 // if compileOutputLine not null 我们就持续输出，否则不输出
                 while ((compileOutputLine = bufferedReader.readLine()) != null) {
-                    compileOutputStringBuilder.append(compileOutputLine);
+                    compileOutputStringBuilder.append(compileOutputLine).append("\n");
                 }
                 executeMessage.setMessage(compileOutputStringBuilder.toString());
             } else {
@@ -48,7 +48,7 @@ public class ProcessUtils {
                 String compileOutputLine;
                 // if compileOutputLine not null 我们就持续输出，否则不输出
                 while ((compileOutputLine = bufferedReader.readLine()) != null) {
-                    compileOutputStringBuilder.append(compileOutputLine);
+                    compileOutputStringBuilder.append(compileOutputLine).append("\n");
                 }
                 executeMessage.setErrorMessage(compileOutputStringBuilder.toString());
 
@@ -60,7 +60,7 @@ public class ProcessUtils {
                 String errorCompileOutputLine;
                 // if compileOutputLine not null 我们就持续输出，否则不输出
                 while ((errorCompileOutputLine = errorBufferedReader.readLine()) != null) {
-                    errorCompileOutputStringBuilder.append(errorCompileOutputLine);
+                    errorCompileOutputStringBuilder.append(errorCompileOutputLine).append("\n");
                 }
                 executeMessage.setErrorMessage(errorCompileOutputStringBuilder.toString());
 
