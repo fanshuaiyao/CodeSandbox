@@ -3,10 +3,13 @@ package com.fan.yuojcodesandbox;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.dfa.FoundWord;
+import cn.hutool.dfa.WordTree;
 import com.fan.yuojcodesandbox.model.ExecuteCodeRequest;
 import com.fan.yuojcodesandbox.model.ExecuteCodeResponse;
 import com.fan.yuojcodesandbox.model.ExecuteMessage;
 import com.fan.yuojcodesandbox.model.JudgeInfo;
+import com.fan.yuojcodesandbox.security.DefaultSecurityManage;
 import com.fan.yuojcodesandbox.utils.ProcessUtils;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -30,6 +33,20 @@ public class JavaNativeCodeSandBox implements CodeSandBox{
     public static final String GLOBAL_CODE_DIR_NAME = "tempCode";
     public static final String GLOBL_JAVA_CLASS_NAME = "Main.java";
 
+    // 程序运行超时时间
+    public static final long TIME_OUT = 5000L;
+
+    // 定义一个黑名单 限制用户使用某些代码
+    public static final List<String> blackList = Arrays.asList("Files", "exec");
+
+    public static final WordTree WORD_TREE ;
+
+    static {
+        // 校验代码中是否包含黑名单单词
+        WORD_TREE = new WordTree();
+        WORD_TREE.addWords(blackList);
+    }
+
 
     public static void main(String[] args) {
         JavaNativeCodeSandBox javaNativeCodeSandBox = new JavaNativeCodeSandBox();
@@ -39,7 +56,7 @@ public class JavaNativeCodeSandBox implements CodeSandBox{
         // 从文件中读代码
         // String code = ResourceUtil.readStr("testCode/simpleComputeArgs/Main.java", StandardCharsets.UTF_8);
         // 读异常程序
-        String code = ResourceUtil.readStr("testCode/unsafeCode/RunFileError.java", StandardCharsets.UTF_8);
+        String code = ResourceUtil.readStr("testCode/unsafeCode/MemoryError.java", StandardCharsets.UTF_8);
         executeCodeRequest.setCode(code);
         executeCodeRequest.setLanguage("java");
         ExecuteCodeResponse executeCodeResponse = javaNativeCodeSandBox.executeCode(executeCodeRequest);
@@ -48,9 +65,20 @@ public class JavaNativeCodeSandBox implements CodeSandBox{
 
     @Override
     public ExecuteCodeResponse executeCode(ExecuteCodeRequest executeCodeRequest) {
+
+        // 设置一个默认的安全管理器
+        // System.setSecurityManager(new DefaultSecurityManage());
+
         List<String> inputList = executeCodeRequest.getInputList();
         String code = executeCodeRequest.getCode();
         String language = executeCodeRequest.getLanguage();
+
+        // 检验代码
+        FoundWord foundWord = WORD_TREE.matchWord(code);
+        if (foundWord != null) {
+            System.out.println("包含操作禁止词：" + foundWord);
+            return null;
+        }
 
         // 1. 把用户的代码保存为文件
         String userDir = System.getProperty("user.dir");
@@ -81,9 +109,20 @@ public class JavaNativeCodeSandBox implements CodeSandBox{
         ArrayList<ExecuteMessage> executeMessageList = new ArrayList<>();
         for (String inputArgs : inputList) {
 
-            String runCMD = String.format("java -Dfile.encoding=UTF-8 -cp %s Main %s", userCodeParentPath, inputArgs);
+            // -Xmx256M 指定分配最大内存为256M
+            String runCMD = String.format("java -Xmx256m -Dfile.encoding=UTF-8 -cp %s Main %s", userCodeParentPath, inputArgs);
             try {
                 Process runProcess = Runtime.getRuntime().exec(runCMD);
+                // 新开启一个线程来进行超时杀死运行进程。 先睡一个超时时间 醒来如果你还在运行 那就杀死你
+                new Thread(() -> {
+                    try {
+                        Thread.sleep(TIME_OUT);
+                        System.out.println("程序运行超时！");
+                        runProcess.destroy();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).start();
                 ExecuteMessage executeMessage = ProcessUtils.runProcessAndGetMessage(runProcess, "运行");
                 executeMessageList.add(executeMessage);
                 System.out.println("executeMessage = " + executeMessage);
