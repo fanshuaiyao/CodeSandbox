@@ -24,7 +24,7 @@ public class ProcessUtils {
             stopWatch.start();
 
             int exitValue = runProcess.waitFor();
-            executeMessage.setExitVlue(exitValue);
+            executeMessage.setExitValue(exitValue);
             // 正常退出
             if (exitValue == 0) {
                 System.out.println(opName + "成功！");
