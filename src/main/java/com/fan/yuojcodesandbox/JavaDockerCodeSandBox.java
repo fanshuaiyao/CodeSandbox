@@ -12,6 +12,7 @@ import com.github.dockerjava.api.command.*;
 import com.github.dockerjava.api.model.*;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.command.ExecStartResultCallback;
+import org.springframework.stereotype.Component;
 
 import java.io.Closeable;
 import java.io.File;
@@ -25,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Docker 代码沙箱实现
  */
+@Component
 public class JavaDockerCodeSandBox extends JavaCodeSandboxTemplate{
     public static final boolean FIRST_INIT = true;
     // 程序运行超时时间

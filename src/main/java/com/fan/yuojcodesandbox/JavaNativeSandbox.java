@@ -3,6 +3,7 @@ package com.fan.yuojcodesandbox;
 import cn.hutool.core.io.resource.ResourceUtil;
 import com.fan.yuojcodesandbox.model.ExecuteCodeRequest;
 import com.fan.yuojcodesandbox.model.ExecuteCodeResponse;
+import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -10,6 +11,7 @@ import java.util.Arrays;
 /**
  * JAVA原生实现 直接用模板方法
  */
+@Component
 public class JavaNativeSandbox extends JavaCodeSandboxTemplate{
     @Override
     public ExecuteCodeResponse executeCode(ExecuteCodeRequest executeCodeRequest) {

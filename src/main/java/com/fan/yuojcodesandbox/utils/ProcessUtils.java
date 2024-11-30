@@ -2,9 +2,12 @@ package com.fan.yuojcodesandbox.utils;
 
 import cn.hutool.core.util.StrUtil;
 import com.fan.yuojcodesandbox.model.ExecuteMessage;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.StopWatch;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author fanshuaiyao
@@ -30,39 +33,38 @@ public class ProcessUtils {
                 System.out.println(opName + "成功！");
                 // 拿到控制台的输出  也是线程的正差输流
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(runProcess.getInputStream()));
-                StringBuilder compileOutputStringBuilder = new StringBuilder();
+                List<String> outputStrList = new ArrayList<>();
                 // 逐行读取
                 String compileOutputLine;
                 // if compileOutputLine not null 我们就持续输出，否则不输出
                 while ((compileOutputLine = bufferedReader.readLine()) != null) {
-                    compileOutputStringBuilder.append(compileOutputLine).append("\n");
+                    outputStrList.add(compileOutputLine);
                 }
-                executeMessage.setMessage(compileOutputStringBuilder.toString());
+                executeMessage.setMessage(StringUtils.join(outputStrList, "\n"));
             } else {
-                // 非正常退出吧
+                // 非正常退出
                 System.out.println(opName + "失败！错误码：" + exitValue);
                 // 拿到控制台的输出  也是线程的正差输流
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(runProcess.getInputStream()));
-                StringBuilder compileOutputStringBuilder = new StringBuilder();
+                List<String> outputStrList = new ArrayList<>();
                 // 逐行读取
                 String compileOutputLine;
                 // if compileOutputLine not null 我们就持续输出，否则不输出
                 while ((compileOutputLine = bufferedReader.readLine()) != null) {
-                    compileOutputStringBuilder.append(compileOutputLine).append("\n");
+                    outputStrList.add(compileOutputLine);
                 }
-                executeMessage.setErrorMessage(compileOutputStringBuilder.toString());
+                executeMessage.setMessage(StringUtils.join(outputStrList, "\n"));
 
 
                 // 拿到控制台的输出  拿到错误流
                 BufferedReader errorBufferedReader = new BufferedReader(new InputStreamReader(runProcess.getErrorStream()));
-                StringBuilder errorCompileOutputStringBuilder = new StringBuilder();
+                List<String> errorOutputStrList = new ArrayList<>();
                 // 逐行读取
-                String errorCompileOutputLine;
-                // if compileOutputLine not null 我们就持续输出，否则不输出
-                while ((errorCompileOutputLine = errorBufferedReader.readLine()) != null) {
-                    errorCompileOutputStringBuilder.append(errorCompileOutputLine).append("\n");
+                String errorComplieOutputLine;
+                while ((errorComplieOutputLine = errorBufferedReader.readLine()) != null) {
+                    errorOutputStrList.add(errorComplieOutputLine);
                 }
-                executeMessage.setErrorMessage(errorCompileOutputStringBuilder.toString());
+                executeMessage.setErrorMessage(StringUtils.join(errorOutputStrList, "\n"));
 
                 // 结束计时
                 stopWatch.stop();
