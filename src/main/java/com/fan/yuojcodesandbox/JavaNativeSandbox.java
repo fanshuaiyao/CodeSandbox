@@ -24,7 +24,7 @@ public class JavaNativeSandbox extends JavaCodeSandboxTemplate{
     public static void main(String[] args) {
         JavaNativeSandbox javaNativeSandbox = new JavaNativeSandbox();
         ExecuteCodeRequest executeCodeRequest = new ExecuteCodeRequest();
-        executeCodeRequest.setInputList(Arrays.asList("1 2", "1 3"));
+        executeCodeRequest.setInputList(Arrays.asList("1 8", "1 3"));
 
         String code = ResourceUtil.readStr("testCode/simpleComputeArgs/Main.java", StandardCharsets.UTF_8);
         executeCodeRequest.setCode(code);

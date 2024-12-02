@@ -65,16 +65,15 @@ public class ProcessUtils {
                     errorOutputStrList.add(errorComplieOutputLine);
                 }
                 executeMessage.setErrorMessage(StringUtils.join(errorOutputStrList, "\n"));
-
-                // 结束计时
-                stopWatch.stop();
-                // 获取时间
-                executeMessage.setTime(stopWatch.getLastTaskTimeMillis());
-
             }
+            // 结束计时
+            stopWatch.stop();
+            // 获取时间
+            executeMessage.setTime(stopWatch.getLastTaskTimeMillis());
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return executeMessage;
     }
 

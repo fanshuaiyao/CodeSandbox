@@ -35,11 +35,10 @@ public class MainController {
     @PostMapping("/executeCode")
     ExecuteCodeResponse executeCode(@RequestBody ExecuteCodeRequest executeCodeRequest,
                                     HttpServerRequest request, HttpServerResponse response) {
-        String requestHeader = request.getHeader(AUTH_REQUEST_HEADER);
-        if (!AUTH_REQUEST_SECRET.equals(requestHeader)) {
-            throw new RuntimeException("权限不够！");
-
-        }
+        // String requestHeader = request.getHeader(AUTH_REQUEST_HEADER);
+        // if (!AUTH_REQUEST_SECRET.equals(requestHeader)) {
+        //     throw new RuntimeException("权限不够！");
+        // }
         if (executeCodeRequest == null) {
             throw new RuntimeException("请求参数为空！");
         }

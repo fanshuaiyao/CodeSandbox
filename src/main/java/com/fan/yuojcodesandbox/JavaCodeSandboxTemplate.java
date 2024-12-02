@@ -81,8 +81,9 @@ abstract class JavaCodeSandboxTemplate implements CodeSandBox{
             String runCMD = String.format("java -Xmx256m -Dfile.encoding=UTF-8 -cp %s Main %s", userCodeParentPath, inputArgs);
             try {
                 Process runProcess = Runtime.getRuntime().exec(runCMD);
-                // 新开启一个线程来进行超时杀死运行进程。 先睡一个超时时间 醒来如果你还在运行 那就杀死你
-                new Thread(() -> {
+                // 新开启一个守护线程（当非守护线程死掉的时候 他也得死掉。）来进行超时杀死运行进程。
+                // 先睡一个超时时间 醒来如果你还在运行 那就杀死你
+                Thread timeoutThread = new Thread(() -> {
                     try {
                         Thread.sleep(TIME_OUT);
                         System.out.println("程序运行超时！");
@@ -90,7 +91,12 @@ abstract class JavaCodeSandboxTemplate implements CodeSandBox{
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
-                }).start();
+                });
+
+                // 设置子线程为守护线程
+                timeoutThread.setDaemon(true);
+                timeoutThread.start();
+
                 ExecuteMessage executeMessage = ProcessUtils.runProcessAndGetMessage(runProcess, "运行");
                 executeMessageList.add(executeMessage);
                 System.out.println("executeMessage = " + executeMessage);
@@ -100,7 +106,6 @@ abstract class JavaCodeSandboxTemplate implements CodeSandBox{
         }
         return executeMessageList;
     }
-
 
     /**
      * 4. 整理输出结果
