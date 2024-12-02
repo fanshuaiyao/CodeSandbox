@@ -127,6 +127,7 @@ public class JavaDockerCodeSandBox extends JavaCodeSandboxTemplate{
             System.out.println("已经创建命令完成，命令是：" + execCreateCmdResponse);
 
             ExecuteMessage executeMessage = new ExecuteMessage();
+            executeMessage.setExitValue(0);
 
             final String[] message = {null};
             final String[] errorMassage = {null};
@@ -146,12 +147,11 @@ public class JavaDockerCodeSandBox extends JavaCodeSandboxTemplate{
                 @Override
                 public void onNext(Frame frame) {
                     StreamType streamType = frame.getStreamType();
-                    System.out.println("接收到一个新帧: " + streamType);  // 输出接收到的流类型
                     if (StreamType.STDERR.equals(streamType)) {
                         errorMassage[0] = new String(frame.getPayload());
                         System.out.println("错误输出: " + errorMassage[0]);
                     } else {
-                        message[0] = new String(frame.getPayload());
+                        message[0] = new String(frame.getPayload()).trim();
                         System.out.println("标准输出: " + message[0]);
                     }
                     super.onNext(frame);

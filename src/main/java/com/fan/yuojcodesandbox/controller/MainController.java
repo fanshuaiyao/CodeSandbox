@@ -3,6 +3,7 @@ package com.fan.yuojcodesandbox.controller;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.server.HttpServerRequest;
 import cn.hutool.http.server.HttpServerResponse;
+import com.fan.yuojcodesandbox.JavaDockerCodeSandBox;
 import com.fan.yuojcodesandbox.JavaNativeSandbox;
 import com.fan.yuojcodesandbox.model.ExecuteCodeRequest;
 import com.fan.yuojcodesandbox.model.ExecuteCodeResponse;
@@ -27,6 +28,9 @@ public class MainController {
     @Resource
     private JavaNativeSandbox javaNativeSandbox;
 
+    @Resource
+    private JavaDockerCodeSandBox javaDockerCodeSandBox;
+
     @GetMapping("/health")
     public String health() {
         return "OK";
@@ -43,6 +47,9 @@ public class MainController {
             throw new RuntimeException("请求参数为空！");
         }
         System.out.println("请求参数为 = " + executeCodeRequest);
-        return javaNativeSandbox.executeCode(executeCodeRequest);
+        // return javaNativeSandbox.executeCode(executeCodeRequest);
+        ExecuteCodeResponse executeCodeResponse = javaDockerCodeSandBox.executeCode(executeCodeRequest);
+        System.out.println("executeCodeResponse = " + executeCodeResponse);
+        return executeCodeResponse;
     }
     }
