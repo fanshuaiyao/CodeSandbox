@@ -159,7 +159,7 @@ abstract class JavaCodeSandboxTemplate implements CodeSandBox{
         if (userCodeFile.getParentFile() != null){
             String userCodeParentPath = userCodeFile.getParentFile().getAbsolutePath();
             boolean del = FileUtil.del(userCodeParentPath);
-            System.out.println("删除" + (del ? "成功" : "失败"));
+            System.out.println("此次运行文件删除" + (del ? "成功" : "失败"));
             return del;
         }
         return true;

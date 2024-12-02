@@ -30,14 +30,12 @@ import java.util.concurrent.TimeUnit;
 public class JavaDockerCodeSandBox extends JavaCodeSandboxTemplate{
     public static final boolean FIRST_INIT = true;
     // 程序运行超时时间
-    public static final long TIME_OUT = 5000L;
+    public static final long TIME_OUT = 10000L;
     public static void main(String[] args) {
         JavaDockerCodeSandBox javaDockerCodeSandBox = new JavaDockerCodeSandBox();
         ExecuteCodeRequest executeCodeRequest = new ExecuteCodeRequest();
         executeCodeRequest.setInputList(Arrays.asList("1 2", "1 3"));
         // 从文件中读代码
-        // String code = ResourceUtil.readStr("testCode/simpleComputeArgs/Main.java", StandardCharsets.UTF_8);
-        // 读异常程序
         String code = ResourceUtil.readStr("testCode/simpleComputeArgs/Main.java", StandardCharsets.UTF_8);
         executeCodeRequest.setCode(code);
         executeCodeRequest.setLanguage("java");
@@ -148,12 +146,13 @@ public class JavaDockerCodeSandBox extends JavaCodeSandboxTemplate{
                 @Override
                 public void onNext(Frame frame) {
                     StreamType streamType = frame.getStreamType();
+                    System.out.println("接收到一个新帧: " + streamType);  // 输出接收到的流类型
                     if (StreamType.STDERR.equals(streamType)) {
                         errorMassage[0] = new String(frame.getPayload());
-                        System.out.println("输出错误结果：" + errorMassage[0]);
+                        System.out.println("错误输出: " + errorMassage[0]);
                     } else {
                         message[0] = new String(frame.getPayload());
-                        System.out.println("输出结果" + message[0]);
+                        System.out.println("标准输出: " + message[0]);
                     }
                     super.onNext(frame);
                 }
@@ -205,7 +204,7 @@ public class JavaDockerCodeSandBox extends JavaCodeSandboxTemplate{
                 dockerClient.execStartCmd(execId)
                         .exec(execStartResultCallback)
                         // 超时退出
-                        .awaitCompletion(TIME_OUT, TimeUnit.MICROSECONDS);
+                        .awaitCompletion(TIME_OUT, TimeUnit.MILLISECONDS);
                 // 结束时关闭计时
                 stopWatch.stop();
                 time = stopWatch.getLastTaskTimeMillis();
@@ -224,6 +223,17 @@ public class JavaDockerCodeSandBox extends JavaCodeSandboxTemplate{
             System.out.println(executeMessage);
             executeMessageList.add(executeMessage);
         }
+
+        // 删除容器，确保容器被删除
+        try {
+            dockerClient.removeContainerCmd(containerId)
+                    .withForce(true) // 强制删除正在运行的容器
+                    .exec();
+            System.out.println("容器 " + containerId + " 已删除");
+        } catch (Exception e) {
+            System.out.println("删除容器失败: " + e.getMessage());
+        }
+
         return executeMessageList;
     }
 
