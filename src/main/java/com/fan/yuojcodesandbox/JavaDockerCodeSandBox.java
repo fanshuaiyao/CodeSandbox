@@ -58,24 +58,24 @@ public class JavaDockerCodeSandBox extends JavaCodeSandboxTemplate{
 
         // 3.2 拉取镜像
         String image = "openjdk:8-alpine";
-        // if (FIRST_INIT){
-        //     PullImageCmd pullImageCmd = dockerClient.pullImageCmd(image);
-        //     PullImageResultCallback pullImageResultCallback = new PullImageResultCallback() {
-        //         @Override
-        //         public void onNext(PullResponseItem item) {
-        //             System.out.println("下载镜像：" + item.getStatus());
-        //             super.onNext(item);
-        //         }
-        //     };
-        //     try {
-        //         pullImageCmd.exec(pullImageResultCallback).awaitCompletion();
-        //     } catch (InterruptedException e) {
-        //         System.out.println("拉取镜像异常！");
-        //         throw new RuntimeException(e);
-        //     }
-        //     // FIRST_INIT = false;
-        // }
-        // System.out.println("下载完成！");
+        if (FIRST_INIT){
+            PullImageCmd pullImageCmd = dockerClient.pullImageCmd(image);
+            PullImageResultCallback pullImageResultCallback = new PullImageResultCallback() {
+                @Override
+                public void onNext(PullResponseItem item) {
+                    System.out.println("下载镜像：" + item.getStatus());
+                    super.onNext(item);
+                }
+            };
+            try {
+                pullImageCmd.exec(pullImageResultCallback).awaitCompletion();
+            } catch (InterruptedException e) {
+                System.out.println("拉取镜像异常！");
+                throw new RuntimeException(e);
+            }
+            // FIRST_INIT = false;
+        }
+        System.out.println("下载完成！");
 
         //   3.3 创建容器
         CreateContainerCmd containerCmd = dockerClient.createContainerCmd(image);
@@ -127,6 +127,7 @@ public class JavaDockerCodeSandBox extends JavaCodeSandboxTemplate{
             System.out.println("已经创建命令完成，命令是：" + execCreateCmdResponse);
 
             ExecuteMessage executeMessage = new ExecuteMessage();
+            executeMessage.setExitValue(0);
 
             final String[] message = {null};
             final String[] errorMassage = {null};
@@ -146,12 +147,11 @@ public class JavaDockerCodeSandBox extends JavaCodeSandboxTemplate{
                 @Override
                 public void onNext(Frame frame) {
                     StreamType streamType = frame.getStreamType();
-                    System.out.println("接收到一个新帧: " + streamType);  // 输出接收到的流类型
                     if (StreamType.STDERR.equals(streamType)) {
                         errorMassage[0] = new String(frame.getPayload());
                         System.out.println("错误输出: " + errorMassage[0]);
                     } else {
-                        message[0] = new String(frame.getPayload());
+                        message[0] = new String(frame.getPayload()).trim();
                         System.out.println("标准输出: " + message[0]);
                     }
                     super.onNext(frame);
