@@ -1,6 +1,8 @@
 package com.fan.yuojcodesandbox.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author fanshuaiyao
@@ -8,6 +10,8 @@ import lombok.Data;
  * @date 2024/11/17 00:21
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class JudgeInfo {
 
     /**

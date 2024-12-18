@@ -18,7 +18,7 @@ public class ProcessUtils {
     /**
      * 执行进程并获取信息  参数式
      */
-    public static ExecuteMessage runProcessAndGetMessage(Process runProcess, String opName) {
+    public static ExecuteMessage   runProcessAndGetMessage(Process runProcess, String opName) {
         ExecuteMessage executeMessage = new ExecuteMessage();
 
         try {

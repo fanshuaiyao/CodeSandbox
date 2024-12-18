@@ -2,6 +2,7 @@ package com.fan.yuojcodesandbox;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
+import com.fan.yuojcodesandbox.exception.CompilationException;
 import com.fan.yuojcodesandbox.model.ExecuteCodeRequest;
 import com.fan.yuojcodesandbox.model.ExecuteCodeResponse;
 import com.fan.yuojcodesandbox.model.ExecuteMessage;
@@ -55,12 +56,15 @@ abstract class JavaCodeSandboxTemplate implements CodeSandBox{
             // 执行程序
             Process compileProcess = Runtime.getRuntime().exec(compileCMD);
             ExecuteMessage executeMessage = ProcessUtils.runProcessAndGetMessage(compileProcess, "编译");
+            // if (executeMessage.getExitValue() != 0){
+            //     throw new RuntimeException("编译错误");
+            // }
             if (executeMessage.getExitValue() != 0){
-                throw new RuntimeException("编译错误");
+                throw new CompilationException("编译失败！" + executeMessage.getMessage());
             }
             return executeMessage;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new CompilationException("编译过程发生错误: " + e.getMessage());
         }
 
     }
@@ -191,23 +195,36 @@ abstract class JavaCodeSandboxTemplate implements CodeSandBox{
         List<String> inputList = executeCodeRequest.getInputList();
         String code = executeCodeRequest.getCode();
 
-        // 1. 把用户的代码保存为文件
-        File userCodeFile = saveCodeToFile(code);
+        ExecuteCodeResponse executeCodeResponse = new ExecuteCodeResponse();
+        ExecuteMessage compileFileExecuteMessage = new ExecuteMessage();
+        try {
+            // 1. 把用户的代码保存为文件
+            File userCodeFile = saveCodeToFile(code);
 
-        // 2. 通过命令行编译代码 得到class文件
-        ExecuteMessage compileFileExecuteMessage = compileCode(userCodeFile);
-        System.out.println("compileFileExecuteMessage = " + compileFileExecuteMessage);
+            // 2. 通过命令行编译代码 得到class文件
+            compileFileExecuteMessage = compileCode(userCodeFile);
+            System.out.println("compileFileExecuteMessage = " + compileFileExecuteMessage);
 
-        // 3. 执行代码
-        List<ExecuteMessage> executeMessageList = runFile(userCodeFile, inputList);
+            // 3. 执行代码
+            List<ExecuteMessage> executeMessageList = runFile(userCodeFile, inputList);
 
-        // 4. 收集结果
-        ExecuteCodeResponse executeCodeResponse = getOutputResponse(executeMessageList);
+            // 4. 收集结果
+            executeCodeResponse = getOutputResponse(executeMessageList);
 
-        // 5. 文件清理
-        boolean b = deleteFile(userCodeFile);
-        if (!b){
-            log.error("删除文件操作异常！userCodeFilePath = " + userCodeFile.getAbsolutePath());
+            // 5. 文件清理
+            boolean b = deleteFile(userCodeFile);
+            if (!b){
+                log.error("删除文件操作异常！userCodeFilePath = " + userCodeFile.getAbsolutePath());
+            }
+            return executeCodeResponse;
+        }catch (CompilationException e){
+            executeCodeResponse.setStatus(compileFileExecuteMessage.getExitValue());
+            executeCodeResponse.setMessage("编译错误" + e.getMessage());
+            String errorConpileMessage =  executeCodeResponse.getMessage();
+            executeCodeResponse.setJudgeInfo(new JudgeInfo(errorConpileMessage,0L,0L));
+            executeCodeResponse.setStatus(15);
+        }catch (Exception e){
+            executeCodeResponse.setMessage("执行过程发生错误: " + e.getMessage());
         }
         return executeCodeResponse;
     }

@@ -48,8 +48,9 @@ public class MainController {
         }
         System.out.println("请求参数为 = " + executeCodeRequest);
         // return javaNativeSandbox.executeCode(executeCodeRequest);
+        // ExecuteCodeResponse executeCodeResponse = javaNativeSandbox.executeCode(executeCodeRequest);
         ExecuteCodeResponse executeCodeResponse = javaDockerCodeSandBox.executeCode(executeCodeRequest);
-        System.out.println("executeCodeResponse = " + executeCodeResponse);
+        System.out.println("代码沙箱的相应 = " + executeCodeResponse);
         return executeCodeResponse;
     }
     }

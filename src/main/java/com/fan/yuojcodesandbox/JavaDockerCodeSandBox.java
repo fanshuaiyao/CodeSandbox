@@ -58,24 +58,24 @@ public class JavaDockerCodeSandBox extends JavaCodeSandboxTemplate{
 
         // 3.2 拉取镜像
         String image = "openjdk:8-alpine";
-        if (FIRST_INIT){
-            PullImageCmd pullImageCmd = dockerClient.pullImageCmd(image);
-            PullImageResultCallback pullImageResultCallback = new PullImageResultCallback() {
-                @Override
-                public void onNext(PullResponseItem item) {
-                    System.out.println("下载镜像：" + item.getStatus());
-                    super.onNext(item);
-                }
-            };
-            try {
-                pullImageCmd.exec(pullImageResultCallback).awaitCompletion();
-            } catch (InterruptedException e) {
-                System.out.println("拉取镜像异常！");
-                throw new RuntimeException(e);
-            }
-            // FIRST_INIT = false;
-        }
-        System.out.println("下载完成！");
+        // if (FIRST_INIT){
+        //     PullImageCmd pullImageCmd = dockerClient.pullImageCmd(image);
+        //     PullImageResultCallback pullImageResultCallback = new PullImageResultCallback() {
+        //         @Override
+        //         public void onNext(PullResponseItem item) {
+        //             System.out.println("下载镜像：" + item.getStatus());
+        //             super.onNext(item);
+        //         }
+        //     };
+        //     try {
+        //         pullImageCmd.exec(pullImageResultCallback).awaitCompletion();
+        //     } catch (InterruptedException e) {
+        //         System.out.println("拉取镜像异常！");
+        //         throw new RuntimeException(e);
+        //     }
+        //     // FIRST_INIT = false;
+        // }
+        // System.out.println("下载完成！");
 
         //   3.3 创建容器
         CreateContainerCmd containerCmd = dockerClient.createContainerCmd(image);
