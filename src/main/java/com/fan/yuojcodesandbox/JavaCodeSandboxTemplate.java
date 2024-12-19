@@ -60,11 +60,11 @@ abstract class JavaCodeSandboxTemplate implements CodeSandBox{
             //     throw new RuntimeException("编译错误");
             // }
             if (executeMessage.getExitValue() != 0){
-                throw new CompilationException("编译失败！" + executeMessage.getMessage());
+                throw new CompilationException("编译失败！" + executeMessage.getErrorMessage());
             }
             return executeMessage;
         } catch (Exception e) {
-            throw new CompilationException("编译过程发生错误: " + e.getMessage());
+            throw new CompilationException(e.getMessage());
         }
 
     }
@@ -219,7 +219,7 @@ abstract class JavaCodeSandboxTemplate implements CodeSandBox{
             return executeCodeResponse;
         }catch (CompilationException e){
             executeCodeResponse.setStatus(compileFileExecuteMessage.getExitValue());
-            executeCodeResponse.setMessage("编译错误" + e.getMessage());
+            executeCodeResponse.setMessage(e.getMessage());
             String errorConpileMessage =  executeCodeResponse.getMessage();
             executeCodeResponse.setJudgeInfo(new JudgeInfo(errorConpileMessage,0L,0L));
             executeCodeResponse.setStatus(15);
